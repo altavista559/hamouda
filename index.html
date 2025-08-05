@@ -1,69 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Hamouda AR Project (AutoPlay)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- MindAR & A-Frame libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
-  
-  <style>
-    body, html { margin: 0; padding: 0; overflow: hidden; }
-    #loadingScreen {
-      position: fixed; 
-      width: 100%; 
-      height: 100%; 
-      top: 0; 
-      left: 0; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      background: #111; 
-      color: #fff; 
-      font-size: 20px; 
-      z-index: 9999;
-    }
-  </style>
+  <title>AR Video on Card</title>
+
+  <!-- 1. Meta tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <!-- 2. Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy"
+        content="
+          default-src 'self';
+          script-src 'self' https://cdn.jsdelivr.net;
+          connect-src 'self';
+          img-src 'self' data:;
+          media-src 'self' blob:;
+          style-src 'self' 'unsafe-inline';
+          frame-ancestors 'none';
+        ">
+  <!-- 3. Preload assets -->
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe.min.js">
+  <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.prod.js">
+  <link rel="preload" as="video" href="video.mp4">
+
+  <!-- 4. PWA manifest (اختياري للتخزين المؤقت وإضافة للأجهزة) -->
+  <!-- <link rel="manifest" href="/manifest.json"> -->
 </head>
+<body style="margin:0; overflow:hidden;">
 
-<body>
-  <div id="loadingScreen">Loading Hamouda AR...</div>
+  <!-- تحقّق من دعم الكاميرا -->
+  <div id="unsupported" style="display:none; padding:1em; text-align:center; color:#900;">
+    جهازك لا يدعم AR أو الكاميرا.
+  </div>
 
-  <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; maxTrack: 1;"
-           embedded color-space="sRGB"
-           renderer="colorManagement:true;"
-           vr-mode-ui="enabled:false"
-           device-orientation-permission-ui="enabled:true">
+  <!-- AR Container -->
+  <mindar-image
+    image-target-src="targets.mind"
+    auto-start="true"
+    color-space="sRGB"
+  >
+    <a-scene mindar-image embedded
+             vr-mode-ui="enabled: false"
+             device-orientation-permission-ui="enabled: false"
+             renderer="colorManagement: true; physicallyCorrectLights: true;"
+             loading-screen="enabled: false">
 
-    <a-assets>
-      <video id="ar-video" src="./video.mp4"
-             autoplay loop muted playsinline webkit-playsinline preload="auto" crossorigin="anonymous"></video>
-    </a-assets>
+      <a-assets>
+        <video id="video" src="video.mp4" autoplay loop muted playsinline preload="auto"></video>
+      </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <!-- فيديو AR -->
+      <a-video src="#video"
+               width="1" height="0.56"
+               position="0 0 0"
+               rotation="0 0 0"
+               crossorigin="anonymous"
+               webkit-playsinline="true">
+      </a-video>
 
-    <a-entity mindar-image-target="targetIndex: 0">
-      <a-video src="#ar-video" width="1" height="0.56" position="0 0 0"></a-video>
-    </a-entity>
+    </a-scene>
+  </mindar-image>
 
-  </a-scene>
+  <!-- 5. Scripts with defer -->
+  <script defer src="https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.prod.js"></script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const sceneEl = document.querySelector("a-scene");
-      const loadingScreen = document.getElementById('loadingScreen');
+  <!-- 6. Auto-play & error handling -->
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      // fallback لو ما فيش دعم للكاميرا
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        document.getElementById('unsupported').style.display = 'block';
+        return;
+      }
 
-      sceneEl.addEventListener("arReady", () => {
-        loadingScreen.style.display = "none";
+      const video = document.querySelector('#video');
+      const scene = document.querySelector('a-scene[mindar-image]');
+
+      scene.addEventListener('targetFound', () => {
+        console.log('Target found, playing video');
+        video.play().catch(err => console.warn('Play prevented:', err));
       });
 
-      sceneEl.addEventListener("arError", (error) => {
-        loadingScreen.innerText = "AR failed to load: " + error.detail;
+      scene.addEventListener('targetLost', () => {
+        console.log('Target lost, pausing video');
+        video.pause();
+      });
+
+      scene.addEventListener('renderError', (e) => {
+        console.error('AR render error:', e.detail);
       });
     });
   </script>
-
 </body>
 </html>
