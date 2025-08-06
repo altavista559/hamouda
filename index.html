@@ -9,21 +9,24 @@
       position: absolute; top: 0; left: 0; 
       background: #fff; display: flex; 
       justify-content: center; align-items: center; 
+      font-family: Arial; 
     }
   </style>
 </head>
 <body>
-  <div class="arjs-loader">Loading AR... (Point camera at your card)</div>
+  <div class="arjs-loader">Scan the <strong>printed</strong> Cadillac card (screen images may not work)</div>
+  
   <a-scene 
     vr-mode-ui="enabled: false"
     embedded
-    arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;"
+    arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: true;"
+    renderer="logarithmicDepthBuffer: true;"
   >
-    <!-- NFT Target (no /markers folder) -->
     <a-nft 
       type="nft" 
       url="https://altavista559.github.io/hamouda/cadilac"
       smooth="true"
+      smoothCount="20"
     >
       <a-video
         src="video.mp4"
@@ -38,11 +41,5 @@
     </a-nft>
     <a-entity camera></a-entity>
   </a-scene>
-  <script>
-    // Hide loader when AR loads
-    document.querySelector('a-scene').addEventListener('loaded', function() {
-      document.querySelector('.arjs-loader').style.display = 'none';
-    });
-  </script>
 </body>
 </html>
