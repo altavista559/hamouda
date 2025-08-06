@@ -1,26 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
   <style>
-    .arjs-loader { 
-      height: 100vh; width: 100%; 
-      position: absolute; top: 0; left: 0; 
-      background: #fff; display: flex; 
-      justify-content: center; align-items: center; 
-      font-family: Arial; 
+    .arjs-loader {
+      height: 100vh;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial;
+    }
+    .arjs-loader div {
+      text-align: center;
+      font-size: 1.25em;
     }
   </style>
 </head>
 <body>
-  <div class="arjs-loader">Scan the <strong>printed</strong> Cadillac card (screen images may not work)</div>
-  
+  <div class="arjs-loader">
+    <div>Point camera at the <strong>full-screen</strong> GALAXY VIP image on your PC</div>
+  </div>
+
   <a-scene 
     vr-mode-ui="enabled: false"
     embedded
-    arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: true;"
-    renderer="logarithmicDepthBuffer: true;"
+    arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; debugUIEnabled: true;"
   >
     <a-nft 
       type="nft" 
@@ -33,6 +44,7 @@
         position="0 0.5 0"
         width="1.6"
         height="0.9"
+        rotation="0 0 0"
         autoplay="true"
         loop="true"
         muted="true"
@@ -41,5 +53,12 @@
     </a-nft>
     <a-entity camera></a-entity>
   </a-scene>
+
+  <script>
+    // Debugging helper
+    const scene = document.querySelector('a-scene');
+    scene.addEventListener('markerFound', () => console.log('Marker found!'));
+    scene.addEventListener('markerLost', () => console.log('Marker lost!'));
+  </script>
 </body>
 </html>
