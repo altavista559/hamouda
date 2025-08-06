@@ -13,17 +13,16 @@
   </style>
 </head>
 <body>
-  <div class="arjs-loader">Loading AR...</div>
-  
+  <div class="arjs-loader">Loading AR... (Point camera at your card)</div>
   <a-scene 
     vr-mode-ui="enabled: false"
     embedded
-    arjs="sourceType: webcam; trackingMethod: best;"
+    arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;"
   >
-    <!-- Updated: NFT files in root (no /markers) -->
+    <!-- NFT Target (no /markers folder) -->
     <a-nft 
       type="nft" 
-      url="https://altavista559.github.io/hamouda/cadilac" 
+      url="https://altavista559.github.io/hamouda/cadilac"
       smooth="true"
     >
       <a-video
@@ -39,7 +38,6 @@
     </a-nft>
     <a-entity camera></a-entity>
   </a-scene>
-
   <script>
     // Hide loader when AR loads
     document.querySelector('a-scene').addEventListener('loaded', function() {
